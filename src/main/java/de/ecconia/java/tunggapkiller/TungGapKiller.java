@@ -90,7 +90,8 @@ public class TungGapKiller
 	{
 		System.out.println("Usage: java -jar TungGapKiller.jar [-o] <filename>");
 		System.out.println(" <filename> is the path to the board you want to fix/round.");
-		System.out.println(" -o tells the TungGapKiller to overwrite the provided file and not make a copy with '-rounded' suffix.");
+		System.out.println(" -o Tells the TungGapKiller to overwrite the provided file and not make a copy with '-rounded' suffix.");
+		System.out.println(" -v Print information which stage is currently processed, useful if the program takes too long.");
 	}
 	
 	public TungGapKiller(File in, File out, boolean verbose)
