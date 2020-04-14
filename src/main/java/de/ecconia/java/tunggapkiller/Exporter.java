@@ -67,8 +67,6 @@ public class Exporter
 		
 		queue.add(rootBoard);
 		
-		System.out.println("Export start.");
-		
 		//Start writing the main Board.
 		while(!queue.isEmpty())
 		{
@@ -176,14 +174,12 @@ public class Exporter
 			}
 			else
 			{
-				throw new RuntimeException("I don't know how to export: " + thing.getClass().getSimpleName());
+				throw new RuntimeException("Unkown class found in the .NetRemoting file: " + thing.getClass().getSimpleName());
 			}
 		}
 		
 		w.writeByte(REC_DONE);
 		w.close();
-		
-		System.out.println("Export done.");
 	}
 	
 	//###############################################################

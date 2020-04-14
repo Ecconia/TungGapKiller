@@ -4,13 +4,15 @@ A small little Java tool, which you can feed your .tungboard files and it gets r
 
 Make your builds smooth like a baby butt!
 
-## Useage:
+## Usage:
 
 It is a commandline tool, you should place it into your boards folder.
 
 Run `java -jar TungGapKiller.jar <board-file-name>`. This won't overwrite your file, it will add `-rounded` at the end.
 
 Run `java -jar TungGapKiller.jar -o <board-file-name>` to overwrite your .tungboard file with a rounded version.
+
+Adding `-v` will enable more text output, as well as redirecting the error to the normal output stream (Never trust terminals or your OS).
 
 ## Compile:
 

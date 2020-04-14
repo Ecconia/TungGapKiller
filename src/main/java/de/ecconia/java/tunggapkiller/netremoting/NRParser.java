@@ -22,10 +22,8 @@ public class NRParser
 		}
 		catch(IOException e)
 		{
-			e.printStackTrace();
+			throw new RuntimeException("Could not read file.", e);
 		}
-		
-		return null;
 	}
 	
 	private static NRFile parse(ByteReader reader)
@@ -70,14 +68,14 @@ public class NRParser
 				}
 				default:
 				{
-					throw new RuntimeException("Read unknown root Record: " + tag);
+					throw new RuntimeException("Unknown .NET Remoting root record: " + tag);
 				}
 			}
 		}
 		
 		if(reader.hasMore())
 		{
-			throw new RuntimeException("Reader had " + reader.getRemaining() + " bytes to read.");
+			throw new RuntimeException(".NET Remoting file was not fully read " + reader.getRemaining() + " bytes left.");
 		}
 		
 		b.resolve();

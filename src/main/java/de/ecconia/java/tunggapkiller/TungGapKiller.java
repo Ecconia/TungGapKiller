@@ -9,41 +9,163 @@ import de.ecconia.java.tunggapkiller.tungobjects.common.TungChildable;
 import de.ecconia.java.tunggapkiller.tungobjects.meta.TungObject;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.io.PrintStream;
 
 public class TungGapKiller
 {
 	public static void main(String[] args)
 	{
-		new TungGapKiller();
+		if(args.length < 1)
+		{
+			printHelp();
+			System.exit(1);
+		}
+		
+		boolean overwrite = false;
+		boolean verbose = false;
+		String filename = null;
+		
+		for(String arg : args)
+		{
+			if("-o".equals(arg))
+			{
+				//Accept more than one.
+				overwrite = true;
+			}
+			else if("-v".equals(arg))
+			{
+				verbose = true;
+			}
+			else
+			{
+				if(filename != null)
+				{
+					System.out.println("> Only supply at max one filename/path.\n");
+					printHelp();
+					System.exit(1);
+				}
+				filename = arg;
+			}
+		}
+		
+		if(filename == null)
+		{
+			printHelp();
+			System.exit(1);
+		}
+		
+		File in = new File(filename);
+		if(!in.exists())
+		{
+			System.out.println("File cannot be found: '" + in.getAbsolutePath() + "'");
+			System.exit(1);
+		}
+		
+		File out;
+		if(overwrite)
+		{
+			out = in;
+		}
+		else
+		{
+			File parent = in.getParentFile();
+			String name = in.getName();
+			
+			int dotIndex = name.lastIndexOf('.');
+			if(dotIndex < 0)
+			{
+				out = new File(parent, name + "-rounded");
+			}
+			else
+			{
+				out = new File(parent, name.substring(0, dotIndex) + "-rounded" + name.substring(dotIndex));
+			}
+		}
+		
+		new TungGapKiller(in, out, verbose);
 	}
 	
-	public TungGapKiller()
+	private static void printHelp()
 	{
-		NRFile pf = NRParser.parse(new File("boards/16Bit-Paralell-CLA-ALU.tungboard"));
-		
-		NRObject object = pf.getRootElements().get(0);
-		NRClass firstClass;
-		if(object instanceof NRClass)
+		System.out.println("Usage: java -jar TungGapKiller.jar [-o] <filename>");
+		System.out.println(" <filename> is the path to the board you want to fix/round.");
+		System.out.println(" -o tells the TungGapKiller to overwrite the provided file and not make a copy with '-rounded' suffix.");
+	}
+	
+	public TungGapKiller(File in, File out, boolean verbose)
+	{
+		if(verbose)
 		{
-			firstClass = (NRClass) object;
+			System.out.println("Parsing file: " + in.getName());
 		}
-		else
+		try
 		{
-			throw new RuntimeException("Unknown first object: " + object.getClass().getSimpleName());
-		}
-		
-		if(TungBoard.NAME.equals(firstClass.getName()))
-		{
-			TungBoard board = new TungBoard(firstClass);
+			NRFile pf = NRParser.parse(in);
 			
-			//Fixer:
-			fix(board);
+			if(pf.getRootElements().isEmpty())
+			{
+				throw new RuntimeException("The .NET Remoting file appears to be 'empty'.");
+			}
 			
-			new Exporter(new File("boards/output.tungboard"), board);
+			NRObject object = pf.getRootElements().get(0);
+			NRClass firstClass;
+			if(object instanceof NRClass)
+			{
+				firstClass = (NRClass) object;
+			}
+			else
+			{
+				throw new RuntimeException("First object in .NET Remoting file is not a class: " + object.getClass().getSimpleName());
+			}
+			
+			if(TungBoard.NAME.equals(firstClass.getName()))
+			{
+				if(verbose)
+				{
+					System.out.println("Converting to TUNG-Components...");
+				}
+				
+				TungBoard board = new TungBoard(firstClass);
+				
+				if(verbose)
+				{
+					System.out.println("Rounding angles and positions...");
+				}
+				
+				//Fixer:
+				fix(board);
+				
+				if(verbose)
+				{
+					System.out.println("Exporting to: " + out.getName());
+				}
+				
+				new Exporter(out, board);
+				
+				if(verbose)
+				{
+					System.out.println("Done.");
+				}
+			}
+			else
+			{
+				throw new RuntimeException("First class in .NET Remoting file is not a SavedCircuitBoard: " + firstClass.getName());
+			}
 		}
-		else
+		catch(Exception e)
 		{
-			throw new RuntimeException("First Class has wrong type: " + firstClass.getName());
+			PrintStream o = System.err;
+			if(verbose)
+			{
+				o = System.out;
+			}
+			
+			o.println("You encountered a bug in this program. In the best case it is because you supplied a wrong file. However if the file is proper this is a real bug. Please report this bug (if not intentionally caused by you) to the developer on https://github.com/Ecconia/TungGapKiller/issues. Thanks for helping :)");
+			o.println("Please provide the file you supplied and the following stacktrace in your bug-report:");
+			e.printStackTrace(o);
+			
+			System.exit(1);
 		}
 	}
 	
