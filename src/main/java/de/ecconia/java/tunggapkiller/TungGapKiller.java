@@ -5,6 +5,7 @@ import de.ecconia.java.tunggapkiller.netremoting.NRFile;
 import de.ecconia.java.tunggapkiller.netremoting.elements.NRClass;
 import de.ecconia.java.tunggapkiller.netremoting.elements.NRObject;
 import de.ecconia.java.tunggapkiller.tungobjects.TungBoard;
+import de.ecconia.java.tunggapkiller.tungobjects.TungWire;
 import de.ecconia.java.tunggapkiller.tungobjects.common.TungChildable;
 import de.ecconia.java.tunggapkiller.tungobjects.meta.TungObject;
 
@@ -174,6 +175,11 @@ public class TungGapKiller
 	{
 		for(TungObject to : holder.getChildren())
 		{
+			if(to instanceof TungWire)
+			{
+				continue; //Lets rather not round wires angles and position. The very likely breaks them.
+			}
+			
 			to.getPosition().fix();
 			to.getAngles().fix();
 			
