@@ -5,7 +5,7 @@
 
     <groupId>de.ecconia.java.tunggapkiller</groupId>
     <artifactId>TungGapKiller</artifactId>
-    <version>0-WIP</version>
+    <version>1</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
